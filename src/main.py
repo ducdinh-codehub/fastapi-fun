@@ -21,18 +21,16 @@ initDB = Database()
 api_key_scheme = APIKeyHeader(name="Authorization", scheme_name="APIKey")
 app = FastAPI(
     title=settings.app_name,
-    description="This is backend system for smart agricultural app.",
-    summary="For more information, please visit https://github.com/ducdinh/smart-agricultural-app",
+    description="This is backend system for Smart Agricultural App.",
+    summary="For more information, please contact dinhduc4work@gmail.com",
     version=settings.app_version,
 )
 app.include_router(auth.routers)
 app.include_router(posts.routers, dependencies=[Depends(JWTBearer())])
 app.include_router(user.routers, dependencies=[Depends(JWTBearer())])
 
-
-
 @app.get("/", tags=["Root"])
-async def root(token: Annotated[str, Depends(authenToken)]):
+async def root():
     initDB.init_db()
     return {"message": "Hello World"}
 
