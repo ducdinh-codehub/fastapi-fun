@@ -5,12 +5,15 @@ from typing_extensions import Annotated
 from sqlmodel import Session, select
 from auth.exceptions import login_exception
 import hashlib
-from auth.models import Auth
+from auth.models import Auth, CreateAccountRequest
 import config
 from database import Database
 from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError
+from auth.models import Auth
+from user.models import CreateUserResponse, User
+from user.services import createUser
 
 engine = Database().engine
 
@@ -48,7 +51,7 @@ def createAccessToken(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def checkUserExist(user_account: str, user_password: str):
+def checkAccountExist(user_account: str, user_password: str):
     is_user_found = False
     # Asuming user pasword is md5 hash
     hash_user_password = hashlib.md5(user_password.encode()).hexdigest()
@@ -66,3 +69,36 @@ def selectByUsernamePassword(username: str, password: str) -> Auth:
         results = session.exec(statement)
         
         return results.first()
+    
+def validateAccount(username: str, password: str):
+    exception_duplicate_account = HTTPException(
+        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        detail="Your current account is already exist, please check again !!!",
+    )
+    
+    rsp = checkAccountExist(username, password)
+
+    if rsp is "Success":
+        raise exception_duplicate_account
+    
+def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
+    user = User(name = data.name, full_name = data.full_name, email = data.email, phone = data.phone, age = data.age, created_at = data.created_at, updated_at = data.updated_at, image_avatar = data.image_avatar)
+    response = createUser(user)
+
+    if(response.code is not status.HTTP_200_OK):
+        return response
+
+    hashpassword = hashlib.md5(data.password.encode()).hexdigest()
+
+    validateAccount(data.username, hashpassword)
+
+    try:
+        acc = Auth(user_id = response.user_id, username = data.username, password = hashpassword, created_at = data.created_at, updated_at = data.updated_at)
+        session = Session(engine)
+        session.add(acc)
+        session.commit()
+        response = CreateUserResponse(user_id = response.user_id, message = "User created successfully", code = 200)
+    except Exception as e:
+        response = CreateUserResponse(user_id = None, message = f"User created fail error: {e}", code = status.HTTP_400_BAD_REQUEST)
+
+    return response
