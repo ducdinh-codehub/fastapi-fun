@@ -4,7 +4,7 @@ class Image:
     list_image: []
 
 class Posts(SQLModel, table=True):
-    id: int = Field(primary_key=True, default=None, nullable=False, unique=True)
+    id: int | None = Field(primary_key=True, default=None, nullable=False, unique=True)
     title: str
     content: str
     created_at: str
