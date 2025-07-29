@@ -1,9 +1,9 @@
-from auth.constants import response_status
+from auth.constants import response_status as status
 
 def login_exception(status: str):
     match status:
-        case response_status.success:
+        case status.success:
             return {"message": "Login Success", "code": "200"}
-        case response_status.error:
+        case status.error:
             return {"message": "Login faild", "code": "500"}
     
