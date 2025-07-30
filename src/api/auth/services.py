@@ -3,17 +3,17 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
 from typing_extensions import Annotated
 from sqlmodel import Session, select
-from auth.exceptions import login_exception
+from api.auth.exceptions import login_exception
 import hashlib
-from auth.models import Auth, CreateAccountRequest
+from api.auth.models import Auth, CreateAccountRequest
 import config
 from database import Database
 from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError
-from auth.models import Auth
-from user.models import CreateUserResponse, User
-from user.services import createUser
+from api.auth.models import Auth
+from api.user.models import CreateUserResponse, User
+from api.user.services import createUser
 
 engine = Database().engine
 

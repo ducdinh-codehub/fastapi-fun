@@ -1,4 +1,4 @@
-from auth.constants import response_status as status
+from api.auth.constants import response_status as status
 
 def login_exception(status: str):
     match status:

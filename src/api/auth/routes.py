@@ -1,20 +1,20 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, status, HTTPException
-from auth.services import checkAccountExist as sv_checkAccountExist, createAccount
-from auth.services import createAccessToken as sv_getToken
+from fastapi import APIRouter, Depends, Header, status, HTTPException
+from api.auth.services import checkAccountExist as sv_checkAccountExist, createAccount
+from api.auth.services import createAccessToken as sv_getToken
 from pydantic import (
     BaseModel,
 )   
 from typing import Any, Annotated
 from fastapi.security import OAuth2PasswordRequestForm
-import config
 
-from auth.models import CreateAccountRequest, Response
-from user.models import CreateUserResponse
+from api.auth.models import CreateAccountRequest, Response
+from api.user.models import CreateUserResponse
+from api.models import CommonHeaders
 
 routers = APIRouter()
 
-@routers.post("/auth/login/", response_model=Response, summary="Login to system", tags=["Auth"])
+@routers.post("/login/", response_model=Response, summary="Login to system")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     """
     LOGIN TO SYSTEM:
@@ -37,7 +37,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     
     return {"message": "Login Success", "code": status.HTTP_200_OK, "access_token": access_token, "token_type": "bearer"}
 
-@routers.post("/auth/create-account/", summary="Create account", tags=["Auth"])
+@routers.post("/create-account/", summary="Create account")
 async def create_account(Item: CreateAccountRequest) -> CreateUserResponse:
     response = createAccount(Item)
 

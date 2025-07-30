@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from database import Database
 from sqlmodel import Session, select
 
-from user.models import CreateUserResponse, User
+from api.user.models import CreateUserResponse, User
 
 
 engine = Database().engine
