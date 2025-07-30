@@ -2,9 +2,10 @@ from typing import Any
 from sqlmodel import create_engine, SQLModel, Session
 import config
 from functools import lru_cache
-from posts.models import Posts
-from user.models import User
-from auth.models import Auth
+from api.posts.models import Posts
+from api.user.models import User
+from api.auth.models import Auth
+from api.emailManager.models import EmailManager
 
 class Database:
     engine: Any
@@ -22,6 +23,7 @@ class Database:
         Posts()
         User()
         Auth()
+        EmailManager()
 
     def init_db(self):
         self.create_tb()
