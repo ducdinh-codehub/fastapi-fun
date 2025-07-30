@@ -3,13 +3,10 @@ import config
 from database import Database
 from typing_extensions import Annotated
 from functools import lru_cache
-import auth.routes as auth
-import posts.routes as posts
-import user.routes as user
-from auth.services import authenToken
 from fastapi.security import APIKeyHeader
-from auth.tokenAuthorization import JWTBearer
-
+from fastapi.middleware.cors import CORSMiddleware
+from api.main import routers
+from api.models import CommonHeaders
 
 @lru_cache
 def get_settings():
@@ -19,24 +16,24 @@ settings = get_settings()
 
 initDB = Database()
 api_key_scheme = APIKeyHeader(name="Authorization", scheme_name="APIKey")
+
 app = FastAPI(
     title=settings.app_name,
     description="This is backend system for Smart Agricultural App.",
     summary="For more information, please contact dinhduc4work@gmail.com",
     version=settings.app_version,
 )
-app.include_router(auth.routers)
-app.include_router(posts.routers, dependencies=[Depends(JWTBearer())])
-app.include_router(user.routers, dependencies=[Depends(JWTBearer())])
 
-@app.get("/", tags=["Root"])
-async def root():
-    initDB.init_db()
-    return {"message": "Hello World"}
+origins = [
+    settings.backend_cors_origins,
+]
 
-@app.get("/appinfor", tags=["Root"])
-async def info(settings: Annotated[config.Settings, Depends(get_settings)], token: Annotated[str, Depends(api_key_scheme)]):
-    return {
-        "app_name": settings.app_name,
-        "app_version": settings.app_version,
-        }
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    #allow_headers=["*"],
+)
+
+app.include_router(routers)
