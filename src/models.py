@@ -22,3 +22,9 @@ class CommonConfigs(BaseSettings):
     smtp_tls: bool
     smtp_ssl: bool
     smtp_port: int
+    redis_server: str
+    redis_port: int
+    redis_db: int
+    redis_username: str
+    redis_password: str
+    
