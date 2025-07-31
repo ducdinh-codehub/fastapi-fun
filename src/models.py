@@ -27,4 +27,9 @@ class CommonConfigs(BaseSettings):
     redis_db: int
     redis_username: str
     redis_password: str
+    rabbitmq_user: str
+    rabbitmq_password: str
+    rabbitmq_host: str
+    rabbitmq_port: int
+
     
