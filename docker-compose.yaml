@@ -1,0 +1,57 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_HOST=127.0.0.1
+      - RABBITMQ_PORT=5672
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/data # Persistent volume for RabbitMQ data
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    expose:
+      - "5672"
+      - "15672"
+  back-end-agris:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+    links: ["rabbitmq"]
+  postgres-agris:
+    image: postgres:9.4.26-alpine
+    environment:
+      - POSTGRES_SERVER=localhost
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=agrismart
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456789
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistent volume for database data
+    ports:
+      - "5433:5432"
+  redis-agris:
+    image: redis:8.0.3-alpine
+    environment:
+      - REDIS_SERVER=localhost
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_USERNAME=dinhduc4testing
+      - REDIS_PASSWORD=111111
+    volumes:
+      - redis_data:/var/lib/redis/data # Persistent volume for Redis data
+    ports:
+      - "6379:6379"
+ 
+
+configs:
+  rabbitmq-plugins:
+    content: "[rabbitmq_management]."
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
