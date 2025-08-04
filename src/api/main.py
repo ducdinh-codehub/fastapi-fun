@@ -7,6 +7,8 @@ import api.user.routes as user
 import api.emailManager.routes as email
 import api.redis.routers as testRedis
 import api.rabbitmq.routers as rabbitmq
+import api.plants.identityPlant.routers as identityPlant
+import api.plants.detectDisease.routers as detectDisease
 
 routers = APIRouter()
 initDB = Database()
@@ -22,4 +24,7 @@ routers.include_router(user.routers, prefix="/users", tags=["Users"], dependenci
 routers.include_router(email.routers, prefix="/email", tags=["Email"], dependencies=[Depends(JWTBearer())])
 routers.include_router(testRedis.routers, prefix="/redis", tags=["Redis"], dependencies=[Depends(JWTBearer())])
 routers.include_router(rabbitmq.routers, prefix="/rabbitmq", tags=["RabbitMQ"], dependencies=[Depends(JWTBearer())])
+routers.include_router(identityPlant.routers, prefix="/plants/identity", tags=["Plants"], dependencies=[Depends(JWTBearer())])
+routers.include_router(detectDisease.routers, prefix="/plants/disease-detection", tags=["Plants"], dependencies=[Depends(JWTBearer())])
+
 
