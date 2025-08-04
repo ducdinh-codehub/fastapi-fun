@@ -6,6 +6,7 @@ from api.posts.models import Posts
 from api.user.models import User
 from api.auth.models import Auth
 from api.emailManager.models import EmailManager
+from api.plants.identityPlant.models import ImageInforaStorage
 
 class Database:
     engine: Any
@@ -24,6 +25,7 @@ class Database:
         User()
         Auth()
         EmailManager()
+        ImageInforaStorage()
 
     def init_db(self):
         self.create_tb()
