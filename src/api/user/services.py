@@ -31,7 +31,7 @@ def validateData(data):
 
 def createUser(data) -> CreateUserResponse:
     validateData(data)
-    user = User(name = data.name, full_name = data.full_name, email = data.email, phone = data.phone, age = data.age, created_at = data.created_at, updated_at = data.updated_at, image_avatar = data.image_avatar)
+    user = User(name = data.name, full_name = data.full_name, email = data.email, phone = data.phone, age = data.age, created_at = data.created_at, updated_at = data.updated_at, image_avatar = data.image_avatar, hash_email=data.hash_email)
     
     try:
         session =  Session(engine)
