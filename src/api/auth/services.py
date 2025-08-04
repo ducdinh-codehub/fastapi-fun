@@ -1,6 +1,7 @@
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
+from api.redis.models import Redis
 from typing_extensions import Annotated
 from sqlmodel import Session, select
 from api.auth.exceptions import login_exception
@@ -14,6 +15,7 @@ from jwt.exceptions import InvalidTokenError
 from api.auth.models import Auth
 from api.user.models import CreateUserResponse, User
 from api.user.services import createUser
+from utility import hash_email_value
 
 engine = Database().engine
 
@@ -75,21 +77,45 @@ def validateAccount(username: str, password: str):
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Your current account is already exist, please check again !!!",
     )
+
     
     rsp = checkAccountExist(username, password)
 
     if rsp is "Success":
         raise exception_duplicate_account
     
-def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
-    user = User(name = data.name, full_name = data.full_name, email = data.email, phone = data.phone, age = data.age, created_at = data.created_at, updated_at = data.updated_at, image_avatar = data.image_avatar)
-    response = createUser(user)
-
-    if(response.code is not status.HTTP_200_OK):
-        return response
-
+async def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
+    
     hashpassword = hashlib.md5(data.password.encode()).hexdigest()
 
+    '''Advanced using Redis to improve performance'''
+    hash_email = await hash_email_value(data.email)
+
+    redis = Redis()
+
+    is_activate = True if redis.getBitItemRedisCache("acc", hash_email) == "1" else False
+    
+    if is_activate == False:
+        redis.setBitItemRedisCache("acc", hash_email, 1)
+        print("hash_email2", hash_email)
+        user = User(name = data.name, full_name = data.full_name, email = data.email, phone = data.phone, age = data.age, created_at = data.created_at, updated_at = data.updated_at, image_avatar = data.image_avatar, hash_email=hash_email)
+        response = createUser(user)
+        if(response.code is not status.HTTP_200_OK):
+            return response
+        try:
+            acc = Auth(user_id = response.user_id, username = data.username, password = hashpassword, created_at = data.created_at, updated_at = data.updated_at)
+            session = Session(engine)
+            session.add(acc)
+            session.commit()
+            response = CreateUserResponse(user_id = response.user_id, message = "User created successfully", code = 200)
+        except Exception as e:
+            response = CreateUserResponse(user_id = None, message = f"User created fail error: {e}", code = status.HTTP_400_BAD_REQUEST)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Your current account is already exist, please check again !!!",
+        )
+    '''
     validateAccount(data.username, hashpassword)
 
     try:
@@ -100,5 +126,5 @@ def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
         response = CreateUserResponse(user_id = response.user_id, message = "User created successfully", code = 200)
     except Exception as e:
         response = CreateUserResponse(user_id = None, message = f"User created fail error: {e}", code = status.HTTP_400_BAD_REQUEST)
-
+    '''
     return response

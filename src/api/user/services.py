@@ -4,7 +4,6 @@ from sqlmodel import Session, select
 
 from api.user.models import CreateUserResponse, User
 
-
 engine = Database().engine
 
 
@@ -22,15 +21,18 @@ def validateData(data):
     if data.name is None or data.full_name is None or data.email is None:
         raise exception_empty_field
     
-    rsp = checkUserExist(data.name, data.full_name, data.email, data.phone)
+    #rsp = checkUserExist(data.name, data.full_name, data.email, data.phone)
 
+    '''
     if rsp is not None:
         raise exception_duplicate_user
+    '''
 
 
 def createUser(data) -> CreateUserResponse:
     validateData(data)
     user = User(name = data.name, full_name = data.full_name, email = data.email, phone = data.phone, age = data.age, created_at = data.created_at, updated_at = data.updated_at, image_avatar = data.image_avatar)
+    
     try:
         session =  Session(engine)
         session.add(user)

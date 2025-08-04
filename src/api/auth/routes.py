@@ -39,7 +39,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 @routers.post("/create-account/", summary="Create account")
 async def create_account(Item: CreateAccountRequest) -> CreateUserResponse:
-    response = createAccount(Item)
+    response = await createAccount(Item)
 
     if response.code is not status.HTTP_200_OK:
         raise HTTPException(

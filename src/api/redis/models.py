@@ -3,7 +3,6 @@ from redis import StrictRedis
 import config
 import json
 
-
 def is_json(json_string):
     """
     Checks if a given string is a valid JSON.
@@ -48,6 +47,19 @@ class Redis:
             self.redis_manager.set(key, json.dumps(value))
         else:
             self.redis_manager.set(key, value)
+    
+    def setBitItemRedisCache(self, key, offset, value):
+        self.redis_manager.setbit(key, offset, value)
+
+    def getBitItemRedisCache(self, key, offset):
+        value = self.redis_manager.getbit(key, offset)
+        return value
+    
+    def getAllKeysInRedisCache(self):
+        all_keys = []
+        for key in self.redis_manager.scan_iter(match='*'):
+            all_keys.append(key.decode('utf-8'))
+        return all_keys
             
     def delItemsInRedisCache(self, keyList: list):
         # Keylist the list of keys

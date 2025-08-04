@@ -10,6 +10,7 @@ class User(SQLModel, table=True):
     created_at: str
     updated_at: str
     image_avatar: str | None = None
+    hash_email: int 
 
 class CreateUserRequest(BaseModel):
     name: str | None = None
