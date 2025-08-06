@@ -1,16 +1,16 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, Header, status, HTTPException
-from api.auth.services import checkAccountExist as sv_checkAccountExist, createAccount
-from api.auth.services import createAccessToken as sv_getToken
+from ..auth.services import checkAccountExist as sv_checkAccountExist, createAccount
+from ..auth.services import createAccessToken as sv_getToken
 from pydantic import (
     BaseModel,
 )   
 from typing import Any, Annotated
 from fastapi.security import OAuth2PasswordRequestForm
 
-from api.auth.models import CreateAccountRequest, Response
-from api.user.models import CreateUserResponse
-from api.models import CommonHeaders
+from ..auth.models import CreateAccountRequest, Response
+from ..user.models import CreateUserResponse
+from ..models import CommonHeaders
 
 routers = APIRouter()
 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
-from api.user.models import CreateUserRequest
+from ..user.models import CreateUserRequest
 class Auth(SQLModel, table=True):
     id: int | None = Field(primary_key=True, default=None, nullable=False, unique=True, index=True)
     user_id: int | None = Field(foreign_key="user.id", default=None, nullable=False, unique=True)
@@ -9,6 +9,8 @@ class Auth(SQLModel, table=True):
     password: str # hash value
     created_at: str
     updated_at: str
+    is_locked: bool | None= False
+    description: str | None
 
 class TokenData(BaseModel):
     username: str | None = None

@@ -11,6 +11,8 @@ class User(SQLModel, table=True):
     updated_at: str
     image_avatar: str | None = None
     hash_email: int 
+    is_locked: bool | None = False
+    description: str | None = None
 
 class CreateUserRequest(BaseModel):
     name: str | None = None

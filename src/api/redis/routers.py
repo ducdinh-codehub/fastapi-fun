@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 import httpx
 import json 
-from api.redis.models import Redis
+from ..redis.models import Redis
 routers = APIRouter()
 redisCacheManager = Redis()
 

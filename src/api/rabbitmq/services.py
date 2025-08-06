@@ -1,4 +1,4 @@
-from api.rabbitmq.models import RabbitMQ
+from .models import RabbitMQ
 
 rabbitMQManager = RabbitMQ()
 

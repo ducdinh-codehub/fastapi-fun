@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
-from api.plants.identityPlant.models import IdentifyPlantsRequest
+from ..identityPlant.models import IdentifyPlantsRequest
 
 routers = APIRouter()
 
