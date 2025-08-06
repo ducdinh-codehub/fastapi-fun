@@ -1,9 +1,9 @@
 from typing_extensions import Annotated
 from fastapi import APIRouter, Depends, status, HTTPException, Header
 
-from api.user.models import CreateUserRequest
-from api.user.services import createUser
-from api.models import CommonHeaders
+from ..user.models import CreateUserRequest
+from ..user.services import createUser
+from ..models import CommonHeaders
 
 routers = APIRouter()
 

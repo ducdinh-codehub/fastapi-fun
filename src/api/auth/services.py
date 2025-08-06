@@ -1,20 +1,20 @@
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
-from api.redis.models import Redis
+from ..redis.models import Redis
 from typing_extensions import Annotated
 from sqlmodel import Session, select
-from api.auth.exceptions import login_exception
+from ..auth.exceptions import login_exception
 import hashlib
-from api.auth.models import Auth, CreateAccountRequest
+from ..auth.models import Auth, CreateAccountRequest
 import config
 from database import Database
 from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError
-from api.auth.models import Auth
-from api.user.models import CreateUserResponse, User
-from api.user.services import createUser
+from ..auth.models import Auth
+from ..user.models import CreateUserResponse, User
+from ..user.services import createUser
 from utility import hash_email_value
 
 engine = Database().engine

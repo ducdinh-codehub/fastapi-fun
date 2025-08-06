@@ -1,9 +1,8 @@
-from api.emailManager.models import SendingEmailRequest
 import smtplib, ssl
 
 import config
 from database import Database
-from api.emailManager.models import EmailManager
+from .models import EmailManager, SendingEmailRequest
 from sqlmodel import Session
 from email.mime.text import MIMEText
 

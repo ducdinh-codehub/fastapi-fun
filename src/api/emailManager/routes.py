@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
-from api.emailManager.models import SendingEmailRequest
-from api.emailManager.services import sendEmail as sv_send_mail
+from .models import SendingEmailRequest
+from .services import sendEmail as sv_send_mail
 
 routers = APIRouter()
 
