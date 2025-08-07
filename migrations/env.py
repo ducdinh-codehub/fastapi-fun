@@ -10,6 +10,9 @@ from sqlmodel import SQLModel                       # NEW
 from alembic import context
 from src.api.user.models import User
 from src.api.auth.models import Auth
+from src.api.emailManager.models import EmailManager
+from src.api.plants.identityPlant.models import ImageInforaStorage
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
