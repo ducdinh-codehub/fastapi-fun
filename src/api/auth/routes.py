@@ -1,6 +1,7 @@
 from datetime import timedelta
+from api.auth.tokenAuthorization import JWTBearer
 from fastapi import APIRouter, Depends, Header, status, HTTPException
-from ..auth.services import checkAccountExist as sv_checkAccountExist, createAccount
+from ..auth.services import checkAccountExist as sv_checkAccountExist, createAccount, logOut
 from ..auth.services import createAccessToken as sv_getToken
 from pydantic import (
     BaseModel,
@@ -48,3 +49,9 @@ async def create_account(Item: CreateAccountRequest) -> CreateUserResponse:
         )
     return response
 
+@routers.post("/logout/", summary="Logout")
+async def logout_account(token: dict=Depends(JWTBearer())):
+    await logOut(token)
+
+
+    return "logout"

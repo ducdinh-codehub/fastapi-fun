@@ -1,3 +1,4 @@
+from ..redis.models import Redis
 from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
@@ -7,6 +8,7 @@ from jwt.exceptions import InvalidTokenError
 SECRET_KEY = config.Settings().secret_key
 ALGORITHM = config.Settings().algorithm
 EXPIRE_TOKEN_TIME = config.Settings().access_token_expire_minutes
+redis = Redis()
 
 class JWTBearer(HTTPBearer):
     def __init__(self, auto_error: bool = True, scheme_name="APIKey (Bearer)", description = None):
@@ -19,6 +21,15 @@ class JWTBearer(HTTPBearer):
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
             if not self.verify_jwt(credentials.credentials):
                 raise HTTPException(status_code=403, detail="Invalid token or expired token.")
+            # Check revoke token
+            
+            decode_jwt_jti = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM]).get("jti")
+            print("CHECK REVOKE", decode_jwt_jti)
+            is_jti_exist = redis.getItemRedisCache(key="jti"+decode_jwt_jti)
+
+            if is_jti_exist:
+                raise HTTPException(status_code=403, detail="Invalid token or token has been revoked.")
+
             return credentials.credentials
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
@@ -38,3 +49,5 @@ class JWTBearer(HTTPBearer):
             raise credentials_exception
 
         return "AUTHEN TOKEN"
+    
+    

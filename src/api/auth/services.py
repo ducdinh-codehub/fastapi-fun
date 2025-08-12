@@ -24,6 +24,8 @@ SECRET_KEY = config.Settings().secret_key
 ALGORITHM = config.Settings().algorithm
 EXPIRE_TOKEN_TIME = config.Settings().access_token_expire_minutes
 
+redis = Redis()
+
 def authenToken(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -33,6 +35,7 @@ def authenToken(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
+        jti = payload.get('jti')
         if username is None:
             raise credentials_exception
     except InvalidTokenError:
@@ -40,7 +43,7 @@ def authenToken(token: Annotated[str, Depends(oauth2_scheme)]):
 
     return "AUTHEN TOKEN"
 
-def createAccessToken(data: dict):
+def createAccessToken(data: dict, jti: str = None):
     to_encode = data.copy()
     expires_delta = timedelta(minutes=EXPIRE_TOKEN_TIME)
     
@@ -49,6 +52,8 @@ def createAccessToken(data: dict):
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
 
+    jti = hashlib.md5((data.get("sub")).encode()).hexdigest()
+    to_encode.update({"jti": jti})
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -92,7 +97,6 @@ async def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
     hash_email = await hash_email_value(data.email)
 
 
-    redis = Redis()
 
     is_activate = True if redis.getBitItemRedisCache("acc", hash_email) == 1 else False
     
@@ -109,6 +113,7 @@ async def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
             session.add(acc)
             session.commit()
             response = CreateUserResponse(user_id = response.user_id, message = "User created successfully", code = 200)
+           
         except Exception as e:
             response = CreateUserResponse(user_id = None, message = f"User created fail error: {e}", code = status.HTTP_400_BAD_REQUEST)
     else:
@@ -129,3 +134,18 @@ async def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
         response = CreateUserResponse(user_id = None, message = f"User created fail error: {e}", code = status.HTTP_400_BAD_REQUEST)
     '''
     return response
+
+
+def changePassword(data: dict):
+    return "Change success"
+
+async def logOut(token):
+
+    decode_jwt_jti = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]).get("jti")
+    print("decode_jwt", decode_jwt_jti)
+
+    # Adding token into block list
+    redis.setItemRedisCache(key="jti"+decode_jwt_jti, value="1")
+
+
+    return "Success"
