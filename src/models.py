@@ -1,5 +1,8 @@
 from pydantic_settings import BaseSettings
+from typing import Generic, TypeVar, Optional, Any
+from pydantic import BaseModel
 
+T = TypeVar("T")
 class CommonConfigs(BaseSettings):
     app_name: str
     admin_email: str
@@ -31,5 +34,12 @@ class CommonConfigs(BaseSettings):
     rabbitmq_password: str
     rabbitmq_host: str
     rabbitmq_port: int
+
+class Response(BaseModel, Generic[T]):
+    status: str
+    status_code: int
+    message: Optional[T] = None
+    data: Optional[T] = None
+
 
     

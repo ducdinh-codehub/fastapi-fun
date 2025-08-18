@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from database import Database
-from sqlmodel import Session, select
+from sqlmodel import Session, select, or_
 
-from ..user.models import CreateUserResponse, User
+from ..user.models import CreateUserResponse, FilterUserItem, GetUserResponse, User
 
 engine = Database().engine
 
@@ -28,7 +28,6 @@ def validateData(data):
         raise exception_duplicate_user
     '''
 
-
 def createUser(data) -> CreateUserResponse:
     validateData(data)
     user = User(name = data.name, full_name = data.full_name, email = data.email, phone = data.phone, age = data.age, created_at = data.created_at, updated_at = data.updated_at, image_avatar = data.image_avatar, hash_email=data.hash_email)
@@ -49,3 +48,20 @@ def checkUserExist(name: str, full_name: str, email: str, phone: str):
     
     return results.first()
 
+def getUser(filterUserItem: FilterUserItem) -> GetUserResponse:
+    
+    response = GetUserResponse(message = "User not found", code = status.HTTP_404_NOT_FOUND)
+    session = Session(engine)
+    statement = select(User).where(or_(User.name == filterUserItem.name,
+                                       User.full_name == filterUserItem.full_name,
+                                       User.email == filterUserItem.email,
+                                       User.phone == filterUserItem.phone,
+                                       User.age == filterUserItem.age,
+                                       User.created_at == filterUserItem.created_at,
+                                       User.updated_at == filterUserItem.updated_at))
+    results = session.exec(statement)
+
+    response.data = results.all()
+    print('results',results.all())
+    
+    return response

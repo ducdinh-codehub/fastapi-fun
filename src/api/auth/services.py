@@ -16,6 +16,7 @@ from ..auth.models import Auth
 from ..user.models import CreateUserResponse, User
 from ..user.services import createUser
 from utility import hash_email_value
+import uuid
 
 engine = Database().engine
 
@@ -46,15 +47,17 @@ def authenToken(token: Annotated[str, Depends(oauth2_scheme)]):
 def createAccessToken(data: dict, jti: str = None):
     to_encode = data.copy()
     expires_delta = timedelta(minutes=EXPIRE_TOKEN_TIME)
-    
+
+    jti =  str(uuid.uuid4())
+
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-
-    jti = hashlib.md5((data.get("sub")).encode()).hexdigest()
+    
     to_encode.update({"jti": jti})
     to_encode.update({"exp": expire})
+    to_encode.update({"iat": datetime.now(timezone.utc)})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -95,8 +98,6 @@ async def createAccount(data : CreateAccountRequest) -> CreateUserResponse:
 
     '''Advanced using Redis to improve performance'''
     hash_email = await hash_email_value(data.email)
-
-
 
     is_activate = True if redis.getBitItemRedisCache("acc", hash_email) == 1 else False
     
@@ -146,6 +147,5 @@ async def logOut(token):
 
     # Adding token into block list
     redis.setItemRedisCache(key="jti"+decode_jwt_jti, value="1")
-
 
     return "Success"

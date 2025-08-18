@@ -7,7 +7,7 @@ from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from api.main import routers
 from api.models import CommonHeaders
-
+import uvicorn
 @lru_cache
 def get_settings():
     return config.Settings()
@@ -37,3 +37,7 @@ app.add_middleware(
 )
 
 app.include_router(routers)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
