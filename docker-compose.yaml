@@ -4,7 +4,7 @@ services:
     environment:
       - RABBITMQ_USER=guest
       - RABBITMQ_PASSWORD=guest
-      - RABBITMQ_HOST=127.0.0.1
+      - RABBITMQ_HOST=0.0.0.0
       - RABBITMQ_PORT=5672
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/data # Persistent volume for RabbitMQ data
@@ -14,13 +14,7 @@ services:
     expose:
       - "5672"
       - "15672"
-  back-end-agris:
-    build: .
-    ports:
-      - "8000:8000"
-    depends_on:
-      - rabbitmq
-    links: ["rabbitmq"]
+
   postgres-agris:
     image: postgres:9.4.26-alpine
     environment:
@@ -45,7 +39,16 @@ services:
       - redis_data:/var/lib/redis/data # Persistent volume for Redis data
     ports:
       - "6379:6379"
- 
+  back-end-agris:
+    build: .
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - rabbitmq
+      - postgres-agris
+      - redis-agris
+    links: ["rabbitmq"]
 
 configs:
   rabbitmq-plugins:
